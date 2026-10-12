@@ -1,18 +1,5 @@
 import { NextRequest, NextResponse } from "next/server";
 import { GoogleGenerativeAI } from "@google/generative-ai";
-import type { CoWritingRequest, CoWritingResponse } from "../../../types/story";
-
-const apiKey = process.env.GOOGLE_GENERATIVE_AI_API_KEY;
-
-if (!apiKey) {
-  throw new Error(
-    "GOOGLE_GENERATIVE_AI_API_KEY is not set. " +
-      "Set it in your .env.local file. " +
-      "Get one at https://aistudio.google.com/app/apikey"
-  );
-}
-
-const genAI = new GoogleGenerativeAI(apiKey);
 
 const CO_WRITING_SYSTEM_PROMPT =
   "You are a co-writing companion for an atmospheric creative writing atelier. " +
@@ -29,7 +16,17 @@ const CO_WRITING_SYSTEM_PROMPT =
  */
 export async function POST(request: NextRequest) {
   try {
-    const body = (await request.json()) as CoWritingRequest;
+    const apiKey = process.env.GOOGLE_GENERATIVE_AI_API_KEY;
+    if (!apiKey) {
+      return NextResponse.json(
+        { error: "GOOGLE_GENERATIVE_AI_API_KEY is not configured" },
+        { status: 500 }
+      );
+    }
+
+    const genAI = new GoogleGenerativeAI(apiKey);
+
+    const body = await request.json();
 
     if (!body.message || typeof body.message !== "string") {
       return NextResponse.json(
@@ -38,18 +35,26 @@ export async function POST(request: NextRequest) {
       );
     }
 
-    if (!body.context || typeof body.context !== "string") {
+    if (!body.context || !Array.isArray(body.context)) {
       return NextResponse.json(
-        { error: "Missing or invalid field: context (must be a string)" },
+        { error: "Missing or invalid field: context (must be an array of {role, content} objects)" },
         { status: 400 }
       );
     }
+
+    // Build context string from the array of { role, content } objects
+    const contextString = body.context
+      .map((entry: { role: string; content: string }) => {
+        const label = entry.role === "user" ? "User" : "Assistant";
+        return `${label}: ${entry.content}`;
+      })
+      .join("\n\n");
 
     const model = genAI.getGenerativeModel({ model: "gemini-1.5-flash" });
 
     const result = await model.generateContent([
       CO_WRITING_SYSTEM_PROMPT,
-      `Context (previous story):\n${body.context}\n\nUser input:\n${body.message}`,
+      `Context (previous story):\n${contextString}\n\nUser input:\n${body.message}`,
     ]);
 
     const response = result.response;
@@ -60,9 +65,7 @@ export async function POST(request: NextRequest) {
       .replace(/```/g, "")
       .trim();
 
-    const data: CoWritingResponse = { continuation: cleaned };
-
-    return NextResponse.json({ success: true, data });
+    return NextResponse.json({ response: cleaned });
   } catch (error) {
     console.error("[Co-writing API] Error:", error);
     const message = error instanceof Error ? error.message : "Internal server error";

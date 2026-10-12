@@ -57,3 +57,119 @@
     @apply bg-background text-foreground;
   }
 }
+
+@layer utilities {
+  /* ── Story Typography ─────────────────────────────────────────── */
+
+  .story-paragraph {
+    @apply relative pl-6 text-lg leading-relaxed italic text-muted-foreground;
+    font-family: Georgia, "Times New Roman", serif;
+  }
+
+  .story-paragraph::before {
+    content: "";
+    @apply absolute left-0 top-0 bottom-0 w-1 rounded-full bg-primary/40;
+  }
+
+  /* ── Prose Story Content ──────────────────────────────────────── */
+
+  .prose-story {
+    @apply max-w-2xl text-base leading-7;
+    font-family: Georgia, "Times New Roman", serif;
+  }
+
+  .prose-story h1 {
+    @apply text-3xl font-bold tracking-tight mt-8 mb-4;
+  }
+
+  .prose-story h2 {
+    @apply text-2xl font-semibold tracking-tight mt-6 mb-3;
+  }
+
+  .prose-story h3 {
+    @apply text-lg font-semibold mt-4 mb-2;
+  }
+
+  .prose-story p {
+    @apply mb-4;
+  }
+
+  .prose-story p:last-child {
+    @apply mb-0;
+  }
+
+  .prose-story blockquote {
+    @apply border-l-4 pl-4 italic text-muted-foreground my-4;
+    border-color: hsl(var(--primary) / 0.3);
+  }
+
+  .prose-story ul,
+  .prose-story ol {
+    @apply mb-4 pl-6;
+  }
+
+  .prose-story li {
+    @apply mb-1;
+  }
+
+  .prose-story strong {
+    @apply font-semibold;
+  }
+
+  .prose-story em {
+    @apply italic;
+  }
+
+  .prose-story a {
+    @apply underline underline-offset-4 text-primary hover:text-primary/80 transition-colors duration-200;
+  }
+
+  .prose-story hr {
+    @apply my-6 border-border;
+  }
+
+  /* ── Audio Player ─────────────────────────────────────────────── */
+
+  .story-audio {
+    @apply w-full rounded-lg border bg-card p-4 shadow-sm;
+  }
+
+  .story-audio audio {
+    @apply w-full;
+  }
+
+  /* ── Chat Message Bubbles ─────────────────────────────────────── */
+
+  .chat-message-user {
+    @apply ml-auto max-w-[80%] rounded-2xl rounded-br-sm bg-primary px-4 py-3 text-sm text-primary-foreground shadow-sm;
+  }
+
+  .chat-message-ai {
+    @apply mr-auto max-w-[80%] rounded-2xl rounded-bl-sm bg-card px-4 py-3 text-sm text-card-foreground shadow-sm border;
+  }
+
+  /* ── Upload Area ──────────────────────────────────────────────── */
+
+  .upload-area {
+    @apply flex cursor-pointer flex-col items-center justify-center gap-2 rounded-lg border-2 border-dashed p-8 text-center transition-colors duration-200;
+    border-color: hsl(var(--border));
+  }
+
+  .upload-area:hover {
+    @apply bg-muted/50;
+    border-color: hsl(var(--primary) / 0.4);
+  }
+
+  .upload-area.drag-over {
+    @apply bg-muted/70;
+    border-color: hsl(var(--primary) / 0.6);
+  }
+
+  .upload-area-text {
+    @apply text-sm text-muted-foreground;
+  }
+
+  .upload-area-title {
+    @apply text-base font-medium text-foreground;
+  }
+}
